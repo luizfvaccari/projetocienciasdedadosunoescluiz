@@ -1,31 +1,6 @@
 import pandas as pd
 import sqlite3
 
-
-def corrects_thousand_separator(file_path: str) -> str:
-    """
-    Corrige o separador de milhar em um arquivo CSV.
-    https://www.kaggle.com/datasets/lhucastenorio/industrial-accidents-brazil-from-news-2011-2023
-
-    Args:
-        file_path (str): Caminho do arquivo CSV.
-
-    Returns:
-        str: Caminho do novo arquivo CSV corrigido.
-    """
-    df = pd.read_csv(file_path, dtype={"number": str})
-
-    df["number"] = df["number"].str.replace(".", "", regex=False)
-
-    df["number"] = df["number"].astype(int)
-
-    new_file_path = file_path.replace(".csv", "_corrected.csv")
-
-    df.to_csv(new_file_path, index=False)
-
-    return new_file_path
-
-
 def extract_data(file_path: str) -> pd.DataFrame:
     """
     Extrair dados de um arquivo CSV e retorna um DataFrame do pandas.
@@ -85,12 +60,22 @@ def create_table(db_name: str, table_name: str) -> None:
     cursor = conn.cursor()
     cursor.execute(f"""
         CREATE TABLE IF NOT EXISTS {table_name} (
-            year INTEGER,
-            state TEXT,
-            month TEXT,
-            number FLOAT,
-            date TEXT,
-            UNIQUE(year, state, month, date)
+            estado TEXT,
+            cidade TEXT,
+            area_da_industria TEXT,
+            area_especifica TEXT,
+            cod_CNAE TEXT,
+            processo TEXT,
+            processo_especifico TEXT,
+            evento TEXT,
+            evento_especifico TEXT,
+            vitimas INTEGER,
+            fatalidades INTEGER,
+            grau INTERGER,
+            mes INTEGER,
+            ano INTEGER,
+            url TEXT,
+            UNIQUE(estado, cidade, ano, mes, processo, evento, url)
         )
     """)
     conn.commit()
@@ -109,11 +94,12 @@ def insert_data(df: pd.DataFrame, db_name: str, table_name: str) -> None:
     """
     conn = sqlite3.connect(db_name)
     sql: str = f"""
-        INSERT OR REPLACE INTO {table_name} (year, state, month, number, date)
-        VALUES (?, ?, ?, ?, ?)
+        INSERT OR REPLACE INTO {table_name} (estado, cidade, area_da_industria, area_especifica, cod_CNAE, processo, processo_especifico, evento, evento_especifico, vitimas, fatalidades, grau, mes, ano, url
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """
     for _, row in df.iterrows():
-        conn.execute(sql, (row["year"], row["state"], row["month"], row["number"], row["date"]))
+        conn.execute(sql, (row["estado"], row["cidade"], row["area_da_industria"], row["area_especifica"], row["cod_CNAE"], row["processo"], row["processo_especifico"], row["evento"], row["evento_especifico"], row["vitimas"], row["fatalidades"], row["grau"], row["mes"], row["ano"], row["url"]))
     conn.commit()
     print(f"Inserted {len(df)} rows into {table_name}")
     conn.close()

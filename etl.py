@@ -6,8 +6,6 @@ if __name__ == "__main__":
     # -#-#-# Extract #-#-#-#
     # Define o caminho do arquivo CSV
     file_path = "data/acidentes.csv"
-    extract.corrects_thousand_separator(file_path)
-    file_path = "data/acidentes_corrected.csv"
     # Extrai os dados do arquivo CSV
     data = extract.extract_data(file_path)
     # Realiza a exploração dos dados
@@ -16,7 +14,7 @@ if __name__ == "__main__":
     db_name = "databases/stage.db"
     extract.create_database(db_name)
     # Cria a tabela
-    table_name = "industrial"
+    table_name = "acidentes_industriais"
     extract.create_table(db_name, table_name)
     extract.insert_data(data, db_name, table_name)
 
